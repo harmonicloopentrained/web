@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization: The First Structure</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #00050a; }
+        canvas { display: block; }
+        #title { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); color: #ffffff; font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 300; letter-spacing: 2px; text-shadow: 0 0 10px #00bfff; }
+    </style>
+</head>
+<body>
+    <div id="title">The First Structure</div>
+
+    <script type="importmap">
+        { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 20, 70);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.2;
+
+        const PARTICLE_COUNT = 20000;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(PARTICLE_COUNT * 3);
+        const colors = new Float32Array(PARTICLE_COUNT * 3);
+        const particleStates = [];
+
+        const FIBONACCI_SEQUENCE = generateFibonacciList(20);
+        const TARGET_CENTER = 0.97;
+        const TARGET_RADIUS = 0.02;
+
+        const torusRadius = 30;
+        const tubeRadius = 12;
+
+        function generateFibonacciList(n) {
+            const list = [0, 1];
+            while(list.length < n + 2) list.push(list[list.length - 1] + list[list.length - 2]);
+            return list.slice(2).map(Number);
+        }
+
+        for(let i = 0; i < PARTICLE_COUNT; i++) {
+            const u = Math.random() * 2 * Math.PI;
+            const v = Math.random() * 2 * Math.PI;
+
+            const x = (torusRadius + tubeRadius * Math.cos(v)) * Math.cos(u);
+            const y = (torusRadius + tubeRadius * Math.cos(v)) * Math.sin(u);
+            const z = tubeRadius * Math.sin(v);
+            
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+
+            particleStates.push({
+                basePosition: new THREE.Vector3(x, y, z),
+                value: Math.random(),
+                chaosLevel: 5,
+                velocity: new THREE.Vector3()
+            });
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.2,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            const delta = clock.getDelta();
+
+            const currentPositions = geometry.attributes.position.array;
+            const currentColors = geometry.attributes.color.array;
+            const color = new THREE.Color();
+
+            for(let i = 0; i < PARTICLE_COUNT; i++) {
+                const state = particleStates[i];
+                
+                const V_prev = state.value;
+                const K_prev = state.chaosLevel;
+
+                const fib_val = FIBONACCI_SEQUENCE[Math.max(0, Math.min(K_prev, FIBONACCI_SEQUENCE.length - 1))];
+                const chaos_term = Math.sin(Math.PI * V_prev) / fib_val;
+                const V_t = V_prev + chaos_term * 0.1;
+                state.value = (V_t + 1) % 1;
+
+                if(Math.random() < 0.001) {
+                    state.chaosLevel = Math.max(2, Math.min(15, state.chaosLevel + (Math.random() > 0.5 ? 1 : -1)));
+                }
+
+                const i3 = i * 3;
+                const pos = new THREE.Vector3(currentPositions[i3], currentPositions[i3+1], currentPositions[i3+2]);
+                
+                const force = new THREE.Vector3(
+                    Math.sin(V_t * Math.PI * 4),
+                    Math.cos(V_t * Math.PI * 6),
+                    Math.sin(V_t * Math.PI * 2)
+                ).multiplyScalar(0.5);
+
+                const pull = state.basePosition.clone().sub(pos).multiplyScalar(0.01);
+
+                state.velocity.add(force).add(pull).multiplyScalar(0.95);
+                pos.add(state.velocity.clone().multiplyScalar(delta * 60));
+
+                currentPositions[i3] = pos.x;
+                currentPositions[i3+1] = pos.y;
+                currentPositions[i3+2] = pos.z;
+
+                color.setHSL(0.5 + V_t * 0.2, 1.0, 0.5 + (Math.sin(V_t * Math.PI) * 0.2));
+                currentColors[i3] = color.r;
+                currentColors[i3+1] = color.g;
+                currentColors[i3+2] = color.b;
+            }
+
+            geometry.attributes.position.needsUpdate = true;
+            geometry.attributes.color.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
