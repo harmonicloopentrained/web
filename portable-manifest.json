@@ -1,0 +1,21 @@
+{
+  "schema": "chrysalis-portable-manifest-v1",
+  "name": "chrysalis-frontier-reduced",
+  "version": "0.3.48",
+  "createdAt": "2026-05-17T11:40:03.749Z",
+  "platformCreatedOn": "linux",
+  "archCreatedOn": "x64",
+  "note": "Critical runtime hashes only. This is for verifying Mac/Windows portable envelopes use the same organism source.",
+  "files": {
+    "package.json": "4d6ce4385f23a85e269a736f65dbc7b8d2042ce841a0502fc97f8a625168878c",
+    "index.html": "0b19ef40e4722b881731850837629af2acda8e13b973b7974728b8854cbf720b",
+    "src/main.js": "08a6598b9b64aa028447c0b5db00b2760d3292913b25675a5870b01e99ad5c67",
+    "src/shaders.js": "e2a1e63bec5a15a6d381dda924bfd4450c48adf9f7fbd17ca45856a6fcf40af3",
+    "src/style.css": "b3adde3dd9fe094da5063ed029c60552b665a1ed8cb34dd1bc17fffba792a824",
+    "src/diagnostic-budget.js": "c04313d59818af0645e64cf53b7e0b4f8c299822a74a12d3e18b1116d8fd8e92",
+    "electron/main.cjs": "60ab3ab9d2ee2c2ad9ea5fa44a5cc0834b9996e42103cd385ce3d00640700267",
+    "electron/preload.cjs": "9290b2df789e5fadcaf4b89c304094b40a13593c735ea811c9d4519dc5715f29",
+    "chrysalis-standalone-autostart.html": "948947f009b8ec06f0984e6e8709946983479933930895e2220ea1875ddfe7b6",
+    "chrysalis-standalone-manual.html": "43f66d02352fec8336c7b4a4773681dd80ac64634d87b6e2c1b9162fac32677d"
+  }
+}

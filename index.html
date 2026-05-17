@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chrysalis Frontier · Electron Local Shell</title>
+  <link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+  <canvas id="view"></canvas>
+  <section id="panel">
+    <h1>Chrysalis Frontier · Electron Local Shell</h1>
+    <p class="sub">Reduced shipping branch. Runtime readout stays minimal; autonomy, World Dig, portal navigation, save/load, and PBO/RAM backflow remain active.</p>
+
+    <details class="control-section" open>
+      <summary>Core Run</summary>
+      <div class="buttons button-grid two-up">
+        <button id="pauseBtn">Pause</button>
+        <button id="applyRegimeBtn">Apply Step Now</button>
+        <button id="fullscreenBtn">Fullscreen F</button>
+        <button id="hideBtn">Hide UI H</button>
+      </div>
+    </details>
+
+    <details class="control-section" open>
+      <summary>Reset + Autonomy</summary>
+      <div class="reset-stack" aria-label="Reset variants">
+        <button id="resetBtn">Reset at 2 full steps · primordial universe</button>
+        <button id="pinnedDescentBtn" class="descent">Pinned Descent Reset P</button>
+        <div class="autonomy-reset-row">
+          <button id="autonomousResetBtn" class="autonomy">Autonomous Chunking Reset A</button>
+          <select id="autonomousMode" aria-label="Autonomous chunking mode"></select>
+        </div>
+      </div>
+      <label class="row">
+        <span>step regime</span>
+        <select id="stepRegimeOverride"></select>
+      </label>
+    </details>
+
+    <details class="control-section">
+      <summary>Portal Navigation</summary>
+      <div class="buttons button-grid nav-grid">
+        <button id="escherZoomBtn" class="escher">Initiate Escher Portal E/J</button>
+        <button id="establishCenterBtn" class="escher">Establish New Center =</button>
+        <button id="portalDownBtn" class="escher">Portal Down ]</button>
+        <button id="portalUpBtn" class="escher">Portal Up [</button>
+        <button id="portalLeftBtn" class="escher">Portal Left ,</button>
+        <button id="portalRightBtn" class="escher">Portal Right .</button>
+        <button id="openSubspaceBtn" class="escher">Open Subspace U</button>
+      </div>
+      <label class="row">
+        <span>escher zoom</span>
+        <select id="escherZoomMode" aria-label="Escher zoom mode"></select>
+      </label>
+    </details>
+
+    <details class="control-section">
+      <summary>World Dig + Subspace</summary>
+      <div id="worldDigStatus" class="world-dig-status">WorldDig idle d0 · open 0 promote 0 reject 0</div>
+      <div class="buttons button-grid world-grid">
+        <button id="worldDigOpenBtn" class="world-dig">Begin World Dig G</button>
+        <button id="worldDigHalfOpenBtn" class="world-dig">Half Zoom Dig B</button>
+        <button id="worldDigCommitBtn" class="world-dig">Commit Dig Shift+G</button>
+        <button id="worldDigAbortBtn" class="world-dig">Abort Dig Alt+G</button>
+        <button id="worldDigAutonomyBtn" class="autonomy world-dig">Auto Dig Probe: Off</button>
+        <button id="reticleBtn" class="world-dig active">Hide Reticle Q</button>
+        <button id="resetSubspaceBtn">Reset Subspace O</button>
+      </div>
+    </details>
+
+    <details class="control-section" open>
+      <summary>Render + Simulation</summary>
+      <label class="row">
+        <span>view</span>
+        <select id="viewMode"></select>
+      </label>
+      <label class="row">
+        <span>screen resolution</span>
+        <select id="resolutionQuality"></select>
+      </label>
+      <label class="row">
+        <span>simulation pixels</span>
+        <select id="simulationPixelScale" aria-label="Simulation pixel resolution"></select>
+      </label>
+      <label class="row">
+        <span>viewing mode</span>
+        <select id="viewingMode"></select>
+      </label>
+      <label class="row">
+        <span>mipmaps</span>
+        <select id="mipmapRenderMode" aria-label="Mipmap render mode"></select>
+      </label>
+      <label class="row">
+        <span>depth effect</span>
+        <select id="depthEffectMode" aria-label="Depth effect mode"></select>
+      </label>
+      <label class="row">
+        <span>pixel blend</span>
+        <select id="pixelBlendMode" aria-label="Pixel blend mode"></select>
+      </label>
+    </details>
+
+    <details class="control-section">
+      <summary>Files</summary>
+      <div class="buttons button-grid two-up">
+        <button id="saveStateBtn">Save State S</button>
+        <button id="loadStateBtn">Load State</button>
+      </div>
+      <input id="loadStateFile" type="file" accept=".json,application/json" hidden />
+    </details>
+
+    <div id="log">v0.3.48 reduced ship branch running. Autonomous mode, portal navigation, World Dig, Projective Subspace, save/load, render controls, and PBO/RAM backflow remain active.</div>
+  </section>
+  <button id="uiToggleBtn" aria-hidden="true">Show UI H</button>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "name": "chrysalis-frontier-reduced",
+  "version": "0.3.48",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "node --check src/main.js && node --check src/shaders.js && node --check src/diagnostic-budget.js && node --check electron/main.cjs && node --check electron/preload.cjs && node --check tools/write-portable-manifest.mjs && node --test tests/diagnostic-budget.test.mjs && node scripts/check-all.mjs",
+    "start": "electron .",
+    "desktop": "electron .",
+    "start:angle:metal": "CHRYSALIS_ANGLE_BACKEND=metal electron .",
+    "start:angle:opengl": "CHRYSALIS_ANGLE_BACKEND=opengl electron .",
+    "pack:mac": "npm run pack:mac:x64",
+    "pack:mac:x64": "electron-packager . Chrysalis --platform=darwin --arch=x64 --out=release --overwrite --prune=true --ignore=\"^/release($|/)\"",
+    "pack:mac:air2019": "npm run pack:mac:x64",
+    "pack:mac:arm64": "electron-packager . Chrysalis --platform=darwin --arch=arm64 --out=release --overwrite --prune=true --ignore=\"^/release($|/)\"",
+    "start:mac:default": "electron .",
+    "start:mac:metal": "CHRYSALIS_TARGET=macbook-air-2019-intel CHRYSALIS_PORTABLE_PROFILE=macbook-air-2019-intel-metal CHRYSALIS_ANGLE_BACKEND=metal electron .",
+    "manifest": "node tools/write-portable-manifest.mjs",
+    "standalone": "node tools/build-standalone.mjs",
+    "check:standalone-tool": "node --check tools/build-standalone.mjs"
+  },
+  "description": "Chrysalis Frontier reduced Pages + macOS Sonoma branch: autonomy, World Dig, Projective Subspace, save/load, and Electron launch kit.",
+  "main": "electron/main.cjs",
+  "devDependencies": {
+    "electron": "42.1.0",
+    "@electron/packager": "20.0.0"
+  },
+  "build": {
+    "appId": "local.chrysalis.frontier",
+    "productName": "Chrysalis",
+    "asar": false,
+    "files": [
+      "index.html",
+      "src/**/*",
+      "electron/**/*",
+      "README.md",
+      "CHANGELOG.md",
+      "ELECTRON.md",
+      "docs/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "extendInfo": {
+        "NSHighResolutionCapable": true
+      }
+    }
+  }
+}

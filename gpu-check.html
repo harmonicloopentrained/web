@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chrysalis GPU Check</title>
+  <style>
+    body { font: 15px/1.45 system-ui, -apple-system, Segoe UI, sans-serif; background: #070911; color: #eef2ff; margin: 0; padding: 28px; }
+    main { max-width: 900px; margin: 0 auto; }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .card { background: #101523; border: 1px solid #293247; border-radius: 16px; padding: 18px; margin: 16px 0; }
+    .ok { color: #98f5bc; }
+    .warn { color: rgba(210,225,255,.72); }
+    .bad { color: #ff9a9a; }
+    pre { white-space: pre-wrap; word-break: break-word; background: #050711; padding: 14px; border-radius: 12px; }
+    button { padding: 10px 14px; border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Chrysalis GPU Check</h1>
+  <p>This page does not touch the simulation. It only asks the browser what WebGL backend it is using.</p>
+  <div class="card" id="summary">Checking…</div>
+  <div class="card"><pre id="details"></pre></div>
+  <button id="copy">Copy report</button>
+</main>
+<script>
+(function () {
+  const summary = document.getElementById('summary');
+  const details = document.getElementById('details');
+  const canvas = document.createElement('canvas');
+  const gl2 = canvas.getContext('webgl2', { antialias: false, powerPreference: 'high-performance' });
+  const gl1 = gl2 || canvas.getContext('webgl', { antialias: false, powerPreference: 'high-performance' }) || canvas.getContext('experimental-webgl');
+  const gl = gl2 || gl1;
+  const report = {
+    userAgent: navigator.userAgent,
+    webgl2: !!gl2,
+    webgl: !!gl,
+    vendor: null,
+    renderer: null,
+    unmaskedVendor: null,
+    unmaskedRenderer: null,
+    version: null,
+    shadingLanguageVersion: null,
+    extensions: []
+  };
+  if (gl) {
+    report.vendor = gl.getParameter(gl.VENDOR);
+    report.renderer = gl.getParameter(gl.RENDERER);
+    report.version = gl.getParameter(gl.VERSION);
+    report.shadingLanguageVersion = gl.getParameter(gl.SHADING_LANGUAGE_VERSION);
+    const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+    if (dbg) {
+      report.unmaskedVendor = gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL);
+      report.unmaskedRenderer = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+    }
+    report.extensions = gl.getSupportedExtensions() || [];
+  }
+  const text = JSON.stringify(report, null, 2);
+  details.textContent = text;
+  let cls = 'bad';
+  let msg = 'WebGL did not initialize.';
+  if (report.webgl2) {
+    const r = (report.unmaskedRenderer || report.renderer || '').toLowerCase();
+    if (r.includes('radeon') || r.includes('rx 6800') || r.includes('amd')) {
+      cls = 'ok';
+      msg = 'Good: WebGL2 is active and renderer looks like AMD/Radeon hardware.';
+    } else if (r.includes('swiftshader') || r.includes('basic render')) {
+      cls = 'bad';
+      msg = 'Problem: WebGL2 is active but appears to be software/basic rendering.';
+    } else {
+      cls = 'warn';
+      msg = 'WebGL2 is active. Check the renderer line below to confirm RX 6800S vs integrated GPU.';
+    }
+  } else if (report.webgl) {
+    cls = 'warn';
+    msg = 'Only WebGL1 initialized. Chrysalis may not run correctly.';
+  }
+  summary.className = 'card ' + cls;
+  summary.textContent = msg;
+  document.getElementById('copy').onclick = async () => {
+    try { await navigator.clipboard.writeText(text); alert('Copied.'); }
+    catch (_) { alert('Copy failed; select the text manually.'); }
+  };
+})();
+</script>
+</body>
+</html>
